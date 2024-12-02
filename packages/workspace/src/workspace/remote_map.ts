@@ -81,13 +81,15 @@ export type RemoteMap<T, K extends string = string> = {
 
 export type ReadOnlyRemoteMap<T> = Pick<RemoteMap<T>, 'get' | 'entries' | 'values' | 'has'>
 
-export type RemoteMapCreator = <T, K extends string = string>(
-  opts: CreateRemoteMapParams<T>,
-) => Promise<RemoteMap<T, K>>
+export type RemoteMapCreator = {
+  create: <T, K extends string = string>(opts: CreateRemoteMapParams<T>) => Promise<RemoteMap<T, K>>
+  close: () => Promise<void>
+}
 
-export type ReadOnlyRemoteMapCreator = <T, K extends string = string>(
-  opts: CreateReadOnlyRemoteMapParams<T>,
-) => Promise<RemoteMap<T, K>>
+export type ReadOnlyRemoteMapCreator = {
+  create: <T, K extends string = string>(opts: CreateReadOnlyRemoteMapParams<T>) => Promise<RemoteMap<T, K>>
+  close: () => Promise<void>
+}
 export class InMemoryRemoteMap<T, K extends string = string> implements RemoteMap<T, K> {
   private data: Map<K, T>
   constructor(data: RemoteMapEntry<T, K>[] = []) {

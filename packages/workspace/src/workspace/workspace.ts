@@ -188,6 +188,7 @@ export type Workspace = {
   state: (envName?: string) => State
   envs: () => ReadonlyArray<string>
   currentEnv: () => string
+  close: () => Promise<void>
   accounts: (env?: string) => string[]
   // services is deprecated, kept for backwards compatibility. use accounts.
   // Remove this when no longer used, SALTO-1661
@@ -547,7 +548,7 @@ export const loadWorkspace = async (
               envName,
               {
                 merged: new RemoteElementSource(
-                  await remoteMapCreator<Element>({
+                  await remoteMapCreator.create<Element>({
                     namespace: getRemoteMapNamespace('merged', envName),
                     serialize: element => serialize([element], 'keepRef'),
                     // TODO: we might need to pass static file reviver to the deserialization func
@@ -1278,6 +1279,9 @@ export const loadWorkspace = async (
     setNaclFiles,
     updateNaclFiles: (changes, mode, stateOnly) => updateNaclFiles({ changes, mode, stateOnly }),
     removeNaclFiles,
+    close: async () => {
+      remoteMapCreator.close()
+    },
     getSourceMap: async (filename: string) => (await getSourceByFilename(filename)).getSourceMap(filename),
     getSourceRanges: async (elemID: ElemID) => (await getLoadedNaclFilesSource()).getSourceRanges(currentEnv(), elemID),
     listNaclFiles: async () => [
